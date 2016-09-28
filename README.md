@@ -598,7 +598,7 @@
      }
    }
 </pre>
-<h4>3) <Provider> 组件</h4>
+<h4>3) Provider 组件</h4>
 <p>connect方法生成容器组件后， 需要让容器组件拿到 state对象，才能生成UI组件的参数。React-Redux 提供 Provider 组件， 可以让容器组件拿到state。比如如下代码：</p>
 
     import { Provider } from 'react-redux'
