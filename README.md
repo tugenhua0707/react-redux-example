@@ -1,5 +1,6 @@
 ## React 数据流管理架构之 Redux 详细介绍
 <h3>著名的flux的单向数据流图：</h3>
+<pre>
                  _________               ____________               ___________
                 |         |             |            |             |           |
                 | Action  |------------▶| Dispatcher |------------▶| callbacks |
@@ -17,6 +18,8 @@
                 |   User       |         |   React   |              | Change  |
                 | interactions |◀--------|   Views   |◀-------------| events  |
                 |______________|         |___________|              |_________|
+
+</pre>
 
 <p>我们为什么需要这么一个单向数据流程？</p>
 <p>我们先来看看MVC流程：</p>
@@ -449,12 +452,12 @@
 <p>对于flux流程，我们还剩下唯一的的是 如何订阅 state的更新，并且响应这些的更新；</p>
 <h3>9. 理解 state-subscribe.js</h3>
 <p>现在我们的flux的闭环 差最后一个了；如下：</p>
-<p>
+<pre>
     _________      _________       ___________
    |         |    | Change  |     |   React   |
    |  Store  |----▶ events  |-----▶   Views   |
    |_________|    |_________|     |___________|
-</p>
+</pre>
 <p>监听Redux store更新有一个很简单的办法，如下</p>
 <pre>
   store.subscribe(function(){
@@ -597,36 +600,34 @@
 </pre>
 <h4>3) <Provider> 组件</h4>
 <p>connect方法生成容器组件后， 需要让容器组件拿到 state对象，才能生成UI组件的参数。React-Redux 提供 Provider 组件， 可以让容器组件拿到state。比如如下代码：</p>
-<pre>
-  import { Provider } from 'react-redux'
-  import { createStore } from 'redux'
-  import todoApp from './reducers'
-  import App from './components/App'
 
-  let store = createStore(todoApp);
-  render(
-   <Provider store = {store}>
-     <App />
-   </Provider>,
-   document.getElementById('root')
- ) 
-</pre>
+    import { Provider } from 'react-redux'
+    import { createStore } from 'redux'
+    import todoApp from './reducers'
+    import App from './components/App'
+
+    let store = createStore(todoApp);
+    render(
+     <Provider store = {store}>
+       <App />
+     </Provider>,
+     document.getElementById('root')
+    ) 
+
 <p>代码中，Provider在根组件外面包了一层，这样的花，App的所有子组件默认都可以拿到state了。下面来看一个demo
      </p>
 <p>下面是一个计数器组件，它是一个纯的 UI 组件。</p>
-<pre>
-  class Counter extends Component {
-    render() {
-      const { value, onIncreaseClick } = this.props
-      return (
-        <div>
-          <span>{value}</span>
-          <button onClick={onIncreaseClick}>Increase</button>
-        </div>
-      )
+    class Counter extends Component {
+      render() {
+        const { value, onIncreaseClick } = this.props
+        return (
+          <div>
+            <span>{value}</span>
+            <button onClick={onIncreaseClick}>Increase</button>
+          </div>
+        )
+      }
     }
-  }
-</pre>
 <p>上面代码中，这个 UI 组件有两个参数：value和onIncreaseClick。前者需要从state计算得到，后者需要向外发出 Action。
     接着，定义value到state的映射，以及onIncreaseClick到dispatch的映射</p>
 <pre>
@@ -664,68 +665,67 @@
   }
 </pre>
 <p>最后，生成store对象，并使用Provider在根组件外面包一层。最后是所有的代码如下：</p>
-<pre>
-  import React, { Component, PropTypes } from 'react';
-  import ReactDOM from 'react-dom';
-  import { createStore } from 'redux';
-  import { Provider, connect } from 'react-redux';
+    import React, { Component, PropTypes } from 'react';
+    import ReactDOM from 'react-dom';
+    import { createStore } from 'redux';
+    import { Provider, connect } from 'react-redux';
 
-  // React component
-  class Counter extends Component {
-    render() {
-      const { value, onIncreateClick } = this.props;
-      return (
-        <div>
-          <span>{value}</span>
-          <button onClick = {onIncreateClick}>Increase</button>
-        </div>
-      )
+    // React component
+    class Counter extends Component {
+      render() {
+        const { value, onIncreateClick } = this.props;
+        return (
+          <div>
+            <span>{value}</span>
+            <button onClick = {onIncreateClick}>Increase</button>
+          </div>
+        )
+      }
     }
-  }
-  Counter.propTypes = {
-    value: PropTypes.number.isRequired,
-    onIncreateClick: PropTypes.func.isRequired
-  }
-
-  // Action 
-  const increaseAction = { type: 'increase'}
-
-  // Reducer
-  function counter(state = { count:0 }, action) {
-    const count = state.count;
-    switch(action.type) {
-      case 'increase':
-        return {count: count + 1 }
-      default:
-        return state;
+    Counter.propTypes = {
+      value: PropTypes.number.isRequired,
+      onIncreateClick: PropTypes.func.isRequired
     }
-  }
 
-  // Store 
-  const store = createStore(counter);
+    // Action 
+    const increaseAction = { type: 'increase'}
 
-  function mapStateToProps(state) {
-    return {
-      value: state.count
+    // Reducer
+    function counter(state = { count:0 }, action) {
+      const count = state.count;
+      switch(action.type) {
+        case 'increase':
+          return {count: count + 1 }
+        default:
+          return state;
+      }
     }
-  }
 
-  function mapDispatchToProps(dispatch) {
-    return {
-      onIncreateClick: () => dispatch(increaseAction)
+    // Store 
+    const store = createStore(counter);
+
+    function mapStateToProps(state) {
+      return {
+        value: state.count
+      }
     }
-  }
 
-  // Connected Component
-  const App = connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )(Counter)
+    function mapDispatchToProps(dispatch) {
+      return {
+        onIncreateClick: () => dispatch(increaseAction)
+      }
+    }
 
-  ReactDOM.render(
-    <Provider store = {store}>
-      <App />
-    </Provider>,
-    document.getElementById('app')
-  )
-</pre>
+    // Connected Component
+    const App = connect(
+      mapStateToProps,
+      mapDispatchToProps
+    )(Counter)
+
+    ReactDOM.render(
+      <Provider store = {store}>
+        <App />
+      </Provider>,
+      document.getElementById('app')
+    )
+
